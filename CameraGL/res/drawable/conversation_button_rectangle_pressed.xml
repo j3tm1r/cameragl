@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<!-- Sfondo -->
+    <item>
+        <shape
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="rectangle" >
+            <corners android:radius="5dp" />
+
+            <solid android:color="#cc000000" />
+        </shape>
+    </item>
+    
+<!--     Primo piano -->
+    <item
+        android:bottom="1dp"
+        android:right="1dp">
+        <shape
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="rectangle" >
+            <corners android:radius="5dp" />
+
+            <solid android:color="#ffcae0ea" />
+        </shape>
+    </item>
+
+</layer-list>

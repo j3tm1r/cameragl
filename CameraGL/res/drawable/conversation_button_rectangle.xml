@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pulsante con dentro il testo di una delle 4 domande -->
+<!-- Usato anche come sfondo per gli item dello zaino -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true" android:drawable="@drawable/conversation_button_rectangle_pressed" />
+    <item android:state_pressed="false" android:drawable="@drawable/conversation_button_rectangle_unpressed" />
+
+</selector>
