@@ -29,6 +29,7 @@ public class HomeActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		resolutions = new ArrayList<String>();
+		resolutions.add("128x96");
 		resolutions.add("320x240");
 		resolutions.add("640x480");
 		resolutions.add("1280x720");
@@ -51,14 +52,18 @@ public class HomeActivity extends Activity {
 
 						switch (pos) {
 						case 0:
+							width = 128;
+							height = 96;
+							break;
+						case 1:
 							width = 320;
 							height = 240;
 							break;
-						case 1:
+						case 2:
 							width = 640;
 							height = 480;
 							break;
-						case 2:
+						case 3:
 							width = 1280;
 							height = 720;
 							break;

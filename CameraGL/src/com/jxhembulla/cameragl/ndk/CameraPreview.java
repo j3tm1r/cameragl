@@ -122,7 +122,7 @@ public class CameraPreview implements SurfaceHolder.Callback,
 	//
 	// Native JNI
 	//
-	public native boolean ImageProcessing(int width, int height,
+	public native String ImageProcessing(int width, int height,
 			byte[] NV21FrameData, int[] pixels, int bitsPerPixel, float mR,
 			float mG, float mB);
 
@@ -131,18 +131,19 @@ public class CameraPreview implements SurfaceHolder.Callback,
 	}
 
 	private Runnable DoImageProcessing = new Runnable() {
-		
+
 		public void run() {
 			Log.i("MyRealTimeImageProcessing", "DoImageProcessing():");
 			bProcessing = true;
 			long startTime = System.currentTimeMillis();
+			String time = new String();
 
-			ImageProcessing(PreviewSizeWidth, PreviewSizeHeight, tmpData,
-					pixels, ImageFormat.getBitsPerPixel(imageFormat), mR,
-					mG, mB);
+			time = ImageProcessing(PreviewSizeWidth, PreviewSizeHeight,
+					tmpData, pixels, ImageFormat.getBitsPerPixel(imageFormat),
+					mR, mG, mB);
 			long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
-			System.out.println(elapsedTime);
+			System.out.println(time);
 
 			bitmap.setPixels(pixels, 0, PreviewSizeWidth, 0, 0,
 					PreviewSizeWidth, PreviewSizeHeight);

@@ -2,7 +2,16 @@
  *  ImageProcessing.cpp
  */
 #include <jni.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+
+static double now_ms(void) {
+	struct timespec res;
+	clock_gettime(CLOCK_REALTIME, &res);
+	return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+}
 
 using namespace std;
 
@@ -54,13 +63,15 @@ inline int convertYUVtoRGB(int y, int u, int v, float mR, float mG, float mB) {
 	return 0xff000000 | (b << 16) | (g << 8) | r;
 }
 
-extern "C" jboolean Java_com_jxhembulla_cameragl_ndk_CameraPreview_ImageProcessing(
+extern "C" jstring Java_com_jxhembulla_cameragl_ndk_CameraPreview_ImageProcessing(
 		JNIEnv* env, jobject thiz, jint width, jint height,
 		jbyteArray NV21FrameData, jintArray outPixels, jint bitsPerPixel,
 		jfloat mR, jfloat mG, jfloat mB) {
 	jbyte * pNV21FrameData = env->GetByteArrayElements(NV21FrameData, 0);
 	jint * poutPixels = env->GetIntArrayElements(outPixels, 0);
-
+	double t0, t1, time_c, time_neon;
+	char buffer[512];
+	char* str;
 	int size = width * height;
 	int offset = size;
 	int u, v, y1, y2, y3, y4;
@@ -74,6 +85,8 @@ extern "C" jboolean Java_com_jxhembulla_cameragl_ndk_CameraPreview_ImageProcessi
 	float filterU, filterV, delta, av = -0.25, bv = -0.2, cv = 0.2, dv = 0.25,
 			alpha;
 	float gray;
+
+	t0 = now_ms();
 
 	for (int i = 0, k = 0; i < size; i += 2, k += 2) {
 		y1 = pNV21FrameData[i] & 0xff;
@@ -202,6 +215,14 @@ extern "C" jboolean Java_com_jxhembulla_cameragl_ndk_CameraPreview_ImageProcessi
 		if (i != 0 && (i + 2) % width == 0)
 			i += width;
 	}
-	return true;
+
+	t1 = now_ms();
+	time_c = t1 - t0;
+	asprintf(&str, "Time: %g ms\n",
+			time_c);
+	strlcpy(buffer, str, sizeof buffer);
+	printf("%d");
+
+	return env->NewStringUTF(buffer);
 }
 
