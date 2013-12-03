@@ -192,7 +192,7 @@ public class MyGLRenderer implements Renderer {
         
         
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY,eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ);
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ);
         
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
@@ -208,7 +208,6 @@ public class MyGLRenderer implements Renderer {
         long time = SystemClock.uptimeMillis() % 10000L;
         float distance = (20.0f / 10000.0f) * ((int) time);
         // Draw the triangle facing straight on.
-        
         Matrix.setIdentityM(mRotationMatrix, 0);
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0f, 1f, 0f);
 
@@ -219,7 +218,8 @@ public class MyGLRenderer implements Renderer {
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-      
+
+       // Matrix.translateM(scratch, 0, eyeX, eyeY, eyeZ);
         
         // Set program handles. These will later be used to pass in values to the program.
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "u_MVPMatrix");
