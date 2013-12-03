@@ -13,7 +13,7 @@ public class MainActivity extends Activity {
 	private GLSurfaceView mGlView;
 	private RelativeLayout rl;
 	private RelativeLayout console;
-	private Button rotateL, rotateR, forward, backward;
+	private Button rotateL, rotateR, forward, backward, zoomIn,zoomOut;
 	private Console mConsole;
 		
 	@Override
@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
 		rl = (RelativeLayout) getLayoutInflater().inflate(
 				R.layout.activity_main, null);
 
-		loader = new ObjLoader("scena", this);
+		loader = new ObjLoader("scenablend", this);
 		mGlView = new MyGLSurfaceView(this, loader.getObjects3d(),
 				loader.getMaterials());
 		rl.addView(mGlView);
@@ -66,6 +66,25 @@ public class MainActivity extends Activity {
 				mConsole.moveBackward();
 			}
 		});
+		
+		zoomIn = (Button) console.findViewById(R.id.zoomin);
+		zoomIn.setOnClickListener( new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mConsole.zoom(0.25f);
+			}
+		});
+		
+		zoomOut = (Button) console.findViewById(R.id.zoomout);
+		zoomOut.setOnClickListener( new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mConsole.zoom(-0.25f);
+			}
+		});
+		
 		
 		setContentView(rl);
 	}

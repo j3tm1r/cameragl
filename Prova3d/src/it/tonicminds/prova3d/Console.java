@@ -5,5 +5,5 @@ public interface Console {
 	public void rotateRight(float degrees);
 	public void moveForward();
 	public void moveBackward();
-	
+	public void zoom(float value);
 }

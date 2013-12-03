@@ -10,8 +10,6 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
-import android.opengl.GLU;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.support.v4.util.ArrayMap;
@@ -139,22 +137,49 @@ public class MyGLRenderer implements Renderer {
         // set the buffer to read the first coordinate
         mVertexBuffer.position(0);
 
+        eyeX = 3f;
+        eyeY = 2.0f;
+        eyeZ = 4f;
+        
+        centerX = 3f;
+        centerY = 0f;
+        centerZ = -15f;
+        
+        upX = 0f;
+        upY = 1f;
+        upZ = 0f;
 	}
 	
+	
+	
 	public void rotate(float angle){
+		/* Must rotate around up vector in the choosen direction
+		 * Must change direction vector
+		 * */
+		
+		
 		mAngle+=angle;
+		
+		
 	}
 	
 	
 	float xtrans = 0, ytrans=0, ztrans=0;
 	public void move(boolean forward){
 		if(forward){
-			ztrans+=10;
+			eyeZ--;
 		}else{
-			ztrans-=10;
+			eyeZ++;
 		}
 	}
 	
+	public void zoom(float value){
+		zoomValue+=value;
+	}
+	
+	
+	private float eyeX, eyeY,eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ;
+	private float zoomValue = 1;
 	
 	@Override
 	public void onDrawFrame(GL10 gl) {
@@ -167,7 +192,7 @@ public class MyGLRenderer implements Renderer {
         
         
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 3f, 2.0f, 4f, 0f, 2f, -15f, 0.0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY,eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ);
         
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
@@ -182,10 +207,13 @@ public class MyGLRenderer implements Renderer {
 
         long time = SystemClock.uptimeMillis() % 10000L;
         float distance = (20.0f / 10000.0f) * ((int) time);
-		Matrix.translateM(mMVPMatrix, 0, xtrans, ytrans, ztrans);
         // Draw the triangle facing straight on.
+        
         Matrix.setIdentityM(mRotationMatrix, 0);
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0f, 1f, 0f);
+
+	
+        Matrix.scaleM(mMVPMatrix, 0, zoomValue, zoomValue, zoomValue);
         
         // Combine the rotation matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
@@ -263,6 +291,10 @@ public class MyGLRenderer implements Renderer {
 		int vertexShaderP = loadShader(GLES20.GL_VERTEX_SHADER, vertexShader);
 	    int fragmentShaderP = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader);
 
+	    GLES20.glEnable( GLES20.GL_DEPTH_TEST );
+	    GLES20.glDepthFunc( GLES20.GL_LEQUAL );
+	    GLES20.glDepthMask( true );
+	    
 	    mProgram = GLES20.glCreateProgram();             // create empty OpenGL ES Program
 	    GLES20.glAttachShader(mProgram, vertexShaderP);   // add the vertex shader to program
 	    GLES20.glAttachShader(mProgram, fragmentShaderP); // add the fragment shader to program

@@ -37,4 +37,20 @@
         android:layout_alignParentLeft="true"
         android:text="L" />
 
+    <Button
+        android:id="@+id/zoomin"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignLeft="@+id/right"
+        android:layout_alignTop="@+id/up"
+        android:text="+" />
+
+    <Button
+        android:id="@+id/zoomout"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/up"
+        android:text="-" />
+
 </RelativeLayout>

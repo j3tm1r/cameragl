@@ -20,26 +20,36 @@ public class MyGLSurfaceView extends GLSurfaceView implements Console {
 		renderer = new MyGLRenderer(objs3d, arrayMap);
 		setRenderer(renderer);
 		// Render the view only when there is a change in the drawing data
-		setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 	}
 
 	@Override
 	public void rotateLeft(float degrees) {
-		renderer.rotate(10);
+		renderer.rotate(-5);
+		requestRender();
 	}
 
 	@Override
 	public void rotateRight(float degrees) {
-		renderer.rotate(-10);
+		renderer.rotate(5);
+		requestRender();
 	}
 
 	@Override
 	public void moveForward() {
 		renderer.move(true);
+		requestRender();
 	}
 
 	@Override
 	public void moveBackward() {
 		renderer.move(false);
+		requestRender();
+	}
+
+	@Override
+	public void zoom(float value) {
+		renderer.zoom(value);
+		requestRender();
 	}
 }
