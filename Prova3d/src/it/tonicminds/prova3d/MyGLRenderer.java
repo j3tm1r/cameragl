@@ -9,6 +9,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
+import android.opengl.GLU;
+import android.opengl.GLUtils;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
 import android.os.SystemClock;
@@ -71,13 +73,20 @@ public class MyGLRenderer implements Renderer {
     private int mMVPMatrixHandle;
     
     
+    
+    /*
+     * Camera position and rotation
+     * */
+    private float mAngle = 0.0f;
+	private float eyeX, eyeY,eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ;
+	private float zoomValue = 1;
+	
+    
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private final float[] mRotationMatrix = new float[16];
-    
-    private float mAngle = 180.0f;
     
 	public MyGLRenderer(ArrayList<Object3D> scene, ArrayMap<String, Material> arrayMap) {
 
@@ -136,31 +145,27 @@ public class MyGLRenderer implements Renderer {
         mVertexBuffer.put(mVertices);
         // set the buffer to read the first coordinate
         mVertexBuffer.position(0);
-
-        eyeX = 3f;
-        eyeY = 2.0f;
-        eyeZ = 4f;
+	}
+	
+	public void setCameraPos(float cameraX, float cameraY, float cameraZ, float hX, float hY, float hZ){
+        eyeX = cameraX;
+        eyeY = cameraY;
+        eyeZ = cameraZ;
         
-        centerX = 3f;
-        centerY = 0f;
-        centerZ = -15f;
+        centerX = hX;
+        centerY = hY;
+        centerZ = hZ;
         
         upX = 0f;
         upY = 1f;
         upZ = 0f;
 	}
 	
-	
-	
 	public void rotate(float angle){
 		/* Must rotate around up vector in the choosen direction
 		 * Must change direction vector
 		 * */
-		
-		
 		mAngle+=angle;
-		
-		
 	}
 	
 	
@@ -178,9 +183,7 @@ public class MyGLRenderer implements Renderer {
 	}
 	
 	
-	private float eyeX, eyeY,eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ;
-	private float zoomValue = 1;
-	
+
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		
