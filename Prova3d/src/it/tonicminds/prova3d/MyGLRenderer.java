@@ -9,20 +9,20 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
-import android.opengl.GLU;
-import android.opengl.GLUtils;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 public class MyGLRenderer implements Renderer {
 
+    /** Log tag.
+     * */
     private static final String TAG = "MyGLRenderer";
-	private int mProgram;
-	
-	final String vertexShader =
+    private int mProgram;
+    /** Vertex shader code.
+	 * */
+	private final String vertexShader =
 		    "uniform mat4 u_MVPMatrix;      \n"     // A constant representing the combined model/view/projection matrix.
 		 
 		  + "attribute vec4 a_Position;     \n"     // Per-vertex position information we will pass in.
@@ -38,6 +38,8 @@ public class MyGLRenderer implements Renderer {
 		  + "               * a_Position;   \n"     // Multiply the vertex by the matrix to get the final point in
 		  + "}                              \n";    // normalized screen coordinates.
 	
+	/** Fragment shader code.
+     * */
 	final String fragmentShader =
 		    "precision mediump float;       \n"     // Set the default precision to medium. We don't need as high of a
 		                                            // precision in the fragment shader.
@@ -74,11 +76,12 @@ public class MyGLRenderer implements Renderer {
     
     
     
-    /*
-     * Camera position and rotation
+    /**
+     * Camera rotation
      * */
     private float mAngle = 0.0f;
-	private float eyeX, eyeY,eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ;
+    /** Camera position.*/
+	private float eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ; 
 	private float zoomValue = 1;
 	
     
@@ -172,9 +175,9 @@ public class MyGLRenderer implements Renderer {
 	float xtrans = 0, ytrans=0, ztrans=0;
 	public void move(boolean forward){
 		if(forward){
-			eyeZ--;
+			eyeZ-=0.2;
 		}else{
-			eyeZ++;
+			eyeZ+=0.2;
 		}
 	}
 	
@@ -195,7 +198,7 @@ public class MyGLRenderer implements Renderer {
         
         
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,  centerX,  centerY,  centerZ,  upX,  upY,  upZ);
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 0,  centerX,  centerY,  centerZ,  upX,  upY,  upZ);
         
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
@@ -208,14 +211,15 @@ public class MyGLRenderer implements Renderer {
 //        long time = SystemClock.uptimeMillis() % 10000L;
 //        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 
-        long time = SystemClock.uptimeMillis() % 10000L;
-        float distance = (20.0f / 10000.0f) * ((int) time);
         // Draw the triangle facing straight on.
         Matrix.setIdentityM(mRotationMatrix, 0);
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0f, 1f, 0f);
 
 	
+        Matrix.translateM(mMVPMatrix, 0, -eyeX, -eyeY, -eyeZ);
         Matrix.scaleM(mMVPMatrix, 0, zoomValue, zoomValue, zoomValue);
+        
+        
         
         // Combine the rotation matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order

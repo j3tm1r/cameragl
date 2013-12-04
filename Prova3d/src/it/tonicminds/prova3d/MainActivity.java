@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		float cameraX = 0, cameraY = 2, cameraZ = 0, hX = 0, hY = 2, hZ = -50;
+		float cameraX = 0, cameraY = 4, cameraZ = 0, hX = 0, hY = 2, hZ = -50;
 		rl = (RelativeLayout) getLayoutInflater().inflate(
 				R.layout.activity_main, null);
 
