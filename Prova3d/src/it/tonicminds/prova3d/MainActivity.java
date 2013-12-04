@@ -38,8 +38,8 @@ public class MainActivity extends Activity {
 		 * eyeX = 3f; eyeY = 2.0f; eyeZ = 4f; centerX = 3f; centerY = 0f;
 		 * centerZ = -15f;
 		 */
-		mRendererL.setCameraPos(cameraX - 0.1f, cameraY, cameraZ, hX, hY, hZ, mAngle);
-		mRendererR.setCameraPos(cameraX + 0.1f, cameraY, cameraZ, hX, hY, hZ, mAngle);
+		mRendererL.setCameraPos(cameraX - 0.2f, cameraY, cameraZ, hX, hY, hZ, mAngle);
+		mRendererR.setCameraPos(cameraX + 0.2f, cameraY, cameraZ, hX, hY, hZ, mAngle);
 
 		mGlViewL = new MyGLSurfaceView(this);
 		mGlViewR = new MyGLSurfaceView(this);
