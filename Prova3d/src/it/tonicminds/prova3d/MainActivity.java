@@ -12,7 +12,7 @@ import android.app.Activity;
 public class MainActivity extends Activity {
 	private ObjLoader loader;
 
-	private final float ROTATION_ANGLE = 1.5f;
+	private final float ROTATION_ANGLE = 5f;
 
 	private GLSurfaceView mGlViewL, mGlViewR;
 	private RelativeLayout rl;
@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		float cameraX = 0, cameraY = 4, cameraZ = 0, hX = 0, hY = 2, hZ = -50;
+		float cameraX = 0, cameraY = 4, cameraZ = 0, hX = 0, hY = 2, hZ = -50, mAngle = 180;
 		rl = (RelativeLayout) getLayoutInflater().inflate(
 				R.layout.activity_main, null);
 
@@ -38,8 +38,8 @@ public class MainActivity extends Activity {
 		 * eyeX = 3f; eyeY = 2.0f; eyeZ = 4f; centerX = 3f; centerY = 0f;
 		 * centerZ = -15f;
 		 */
-		mRendererL.setCameraPos(cameraX - 0.1f, cameraY, cameraZ, hX, hY, hZ);
-		mRendererR.setCameraPos(cameraX + 0.1f, cameraY, cameraZ, hX, hY, hZ);
+		mRendererL.setCameraPos(cameraX - 0.1f, cameraY, cameraZ, hX, hY, hZ, mAngle);
+		mRendererR.setCameraPos(cameraX + 0.1f, cameraY, cameraZ, hX, hY, hZ, mAngle);
 
 		mGlViewL = new MyGLSurfaceView(this);
 		mGlViewR = new MyGLSurfaceView(this);
@@ -77,8 +77,8 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				mConsoleR.rotateRight(-ROTATION_ANGLE);
-				mConsoleL.rotateRight(-ROTATION_ANGLE);
+				mConsoleR.rotateRight(ROTATION_ANGLE);
+				mConsoleL.rotateRight(ROTATION_ANGLE);
 			}
 		});
 

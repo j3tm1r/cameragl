@@ -150,7 +150,7 @@ public class MyGLRenderer implements Renderer {
         mVertexBuffer.position(0);
 	}
 	
-	public void setCameraPos(float cameraX, float cameraY, float cameraZ, float hX, float hY, float hZ){
+	public void setCameraPos(float cameraX, float cameraY, float cameraZ, float hX, float hY, float hZ, float angle){
         eyeX = cameraX;
         eyeY = cameraY;
         eyeZ = cameraZ;
@@ -158,6 +158,8 @@ public class MyGLRenderer implements Renderer {
         centerX = hX;
         centerY = hY;
         centerZ = hZ;
+        
+        mAngle = angle;
         
         upX = 0f;
         upY = 1f;

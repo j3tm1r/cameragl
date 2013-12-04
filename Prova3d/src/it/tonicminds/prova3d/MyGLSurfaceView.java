@@ -23,13 +23,13 @@ public class MyGLSurfaceView extends GLSurfaceView implements Console {
 	
 	@Override
 	public void rotateLeft(float degrees) {
-		renderer.rotate(-5);
+		renderer.rotate(-degrees);
 		requestRender();
 	}
 
 	@Override
 	public void rotateRight(float degrees) {
-		renderer.rotate(5);
+		renderer.rotate(degrees);
 		requestRender();
 	}
 
