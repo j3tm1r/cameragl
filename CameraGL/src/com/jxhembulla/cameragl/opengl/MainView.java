@@ -19,7 +19,7 @@ public class MainView extends GLSurfaceView {
 	private class ColorChangeListener implements OnColorChangedListener {
 		@Override
 		public void colorChanged(int color) {
-			mRenderer.takePicture();
+			// mRenderer.takePicture();
 			mRenderer.filterColor(Color.red(color), Color.green(color),
 					Color.blue(color));
 		}
