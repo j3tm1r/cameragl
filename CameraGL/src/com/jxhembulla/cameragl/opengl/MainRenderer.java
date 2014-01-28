@@ -28,57 +28,61 @@ public class MainRenderer implements GLSurfaceView.Renderer,
 			+ "  gl_Position = vec4 ( vPosition.x, vPosition.y, 0.0, 0.9 );\n"
 			+ "}";
 
-	private final String fss = "#extension GL_OES_EGL_image_external : require\r\n"
-			+ "precision mediump float;\r\n"
-			+ "uniform samplerExternalOES sTexture;\r\n"
-			+ "uniform float rUniform;\r\n"
-			+ "uniform float gUniform;\r\n"
-			+ "uniform float bUniform;\r\n"
-			+ "varying vec2 texCoord;\r\n"
-			+ "void main(void)\r\n"
-			+ "{      lowp vec4 textureColor = texture2D(sTexture,texCoord);\r\n"
-			+ "    lowp float gray = dot(textureColor, vec4(0.299, 0.587, 0.114, 0.0));\r\n"
-			+ "    \r\n"
-			+ "    mat3 rgb2yuv = mat3(\r\n"
-			+ "        0.2126, -0.09991, 0.615,    // first column (not row!)\r\n"
-			+ "        0.7152, -0.33609, -0.55861,     // second column\r\n"
-			+ "        0.0722, 0.436, -0.05639     // third column\r\n"
-			+ "    );\r\n"
-			+ "    \r\n"
-			+ "    mat3 yuv2rgb = mat3(\r\n"
-			+ "        1.0, 1.0, 1.0,              // first column (not row!)\r\n"
-			+ "        0.0, -0.21482, 2.12798,     // second column\r\n"
-			+ "        1.28033, -0.38059, 0.0      // third column\r\n"
-			+ "    );  \r\n"
-			+ "    \r\n"
-			+ "    lowp vec3 rgbColor = vec3(textureColor.r,textureColor.g,textureColor.b);\r\n"
-			+ "    lowp vec3 yuvColor = rgb2yuv * rgbColor;\r\n"
-			+ "    lowp vec3 filterColor = rgb2yuv * vec3(rUniform,gUniform,bUniform)/255.0;\r\n"
-			+ "    \r\n"
-			+ "    highp float vp = yuvColor[2];\r\n"
-			+ "    highp float up = yuvColor[1];\r\n"
-			+ "                highp float uf = filterColor[1];\r\n"
-			+ "                highp float vf = filterColor[2];\r\n"
-			+ "                highp float angleP = atan(vp,up);\r\n"
-			+ "            highp float angleF = atan(vf,uf);\r\n"
-			+ "    //if(textureColor.r > 0.6 && textureColor.g < 0.2 && textureColor.g < 0.2)\r\n"
-			+ "    \r\n"
-			+ "    highp float delta = abs(angleF-angleP);\r\n"
-			+ "    \r\n"
-			+ "    highp float a=-0.2-0.05;\r\n"
-			+ "    highp float b=-0.2;\r\n"
-			+ "    highp float c=0.2;\r\n"
-			+ "    highp float d=0.2+0.05;\r\n"
-			+ "    \r\n"
-			+ "    highp float alpha;\r\n"
-			+ "    \r\n"
-			+ "    if (delta < a || delta > d) alpha=0.0;\r\n"
-			+ "    else if (a <= delta && delta <= b) alpha=(delta-a)/(b-a);\r\n"
-			+ "    else if (b <= delta && delta <= c) alpha=1.0;\r\n"
-			+ "    else if (c <= delta && delta <= d) alpha=(d-delta)/(d-c);\r\n"
-			+ "    \r\n"
-			+ "    gl_FragColor = textureColor * alpha + vec4(gray,gray,gray,1)*(1.0-alpha);"
-			+ "}";
+	private final String fss = "#extension GL_OES_EGL_image_external : require\r\n" + 
+			"precision mediump float;\r\n" + 
+			"uniform samplerExternalOES sTexture;\r\n" + 
+			"uniform float rUniform;\r\n" + 
+			"uniform float gUniform;\r\n" + 
+			"uniform float bUniform;\r\n" + 
+			"varying vec2 texCoord;\r\n" + 
+			"void main(void)\r\n" + 
+			"{      \r\n" + 
+			"	int i =0;\r\n" + 
+			"	lowp vec4 textureColor = texture2D(sTexture,texCoord),tmp;\r\n" + 
+			"	lowp float gray = dot(textureColor, vec4(0.299, 0.587, 0.114, 0.0));\r\n" + 
+			"	highp float alpha,vp,up,uf,vf,angleP,angleF,delta,a,b,c,d;\r\n" + 
+			"	lowp vec3 rgbColor,yuvColor,filterColor;\r\n" + 
+			"	\r\n" + 
+			"	mat3 rgb2yuv = mat3(\r\n" + 
+			"		0.2126, -0.09991, 0.615,    // first column (not row!)\r\n" + 
+			"		0.7152, -0.33609, -0.55861,     // second column\r\n" + 
+			"		0.0722, 0.436, -0.05639     // third column\r\n" + 
+			"	);\r\n" + 
+			"	\r\n" + 
+			"	mat3 yuv2rgb = mat3(\r\n" + 
+			"		1.0, 1.0, 1.0,              // first column (not row!)\r\n" + 
+			"		0.0, -0.21482, 2.12798,     // second column\r\n" + 
+			"		1.28033, -0.38059, 0.0      // third column\r\n" + 
+			"	);  \r\n" + 
+			"	\r\n" + 
+			"	//do{ \r\n" + 
+			"	   rgbColor = vec3(textureColor.r,textureColor.g,textureColor.b);\r\n" + 
+			"	   yuvColor = rgb2yuv * rgbColor;\r\n" + 
+			"	   filterColor = rgb2yuv * vec3(rUniform/255.0,gUniform/255.0,bUniform/255.0);\r\n" + 
+			"	   \r\n" + 
+			"	   vp = yuvColor[2];\r\n" + 
+			"	   up = yuvColor[1];\r\n" + 
+			"	   uf = filterColor[1];\r\n" + 
+			"	   vf = filterColor[2];\r\n" + 
+			"	   angleP = atan(vp,up);\r\n" + 
+			"	   angleF = atan(vf,uf); //if(textureColor.r > 0.6 && textureColor.g < 0.2 && textureColor.g < 0.2)\r\n" + 
+			"	   \r\n" + 
+			"	   delta = abs(angleF-angleP);\r\n" + 
+			"	   a=-0.2-0.05;\r\n" + 
+			"	   b=-0.2;\r\n" + 
+			"	   c=0.2;\r\n" + 
+			"	   d=0.2+0.05;\r\n" + 
+			"	   \r\n" + 
+			"	   if (delta < a || delta > d) alpha=0.0;\r\n" + 
+			"	   else if (a <= delta && delta <= b) alpha=(delta-a)/(b-a);\r\n" + 
+			"	   else if (b <= delta && delta <= c) alpha=1.0;\r\n" + 
+			"	   else if (c <= delta && delta <= d) alpha=(d-delta)/(d-c);\r\n" + 
+			"	   i++;\r\n" + 
+			"	   tmp = vec4(gray,gray,gray,1)*(1.0-alpha);\r\n" + 
+			"	   tmp = tmp+textureColor * alpha;\r\n" + 
+			"	//}while(i<10);\r\n" + 
+			"	gl_FragColor = tmp;	\r\n" + 
+			"}";
 
 	private int mR = 20, mG = 220, mB = 20;
 
@@ -98,6 +102,8 @@ public class MainRenderer implements GLSurfaceView.Renderer,
 
 	private MainView mView;
 
+	FPSCounter fpsCounter;
+
 	private byte[] callbackBuffer;
 
 	private int previewSizeHeight, previewSizeWidth;
@@ -114,6 +120,7 @@ public class MainRenderer implements GLSurfaceView.Renderer,
 				.order(ByteOrder.nativeOrder()).asFloatBuffer();
 		pTexCoord.put(ttmp);
 		pTexCoord.position(0);
+		fpsCounter = new FPSCounter();
 	}
 
 	public void close() {
@@ -217,6 +224,8 @@ public class MainRenderer implements GLSurfaceView.Renderer,
 	public void onDrawFrame(GL10 unused) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
+		fpsCounter.logFrame();
+		
 		synchronized (this) {
 			if (mUpdateST) {
 				mSTexture.updateTexImage();

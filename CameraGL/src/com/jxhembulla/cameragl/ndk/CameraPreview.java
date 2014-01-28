@@ -1,7 +1,6 @@
 package com.jxhembulla.cameragl.ndk;
 
 import java.io.IOException;
-
 import com.jxhembulla.cameragl.colorpicker.ColorPickerDialog.OnColorChangedListener;
 
 import android.graphics.Bitmap;
@@ -10,7 +9,9 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.widget.ImageView;
@@ -19,7 +20,6 @@ public class CameraPreview implements SurfaceHolder.Callback,
 		Camera.PreviewCallback {
 	private Camera mCamera = null;
 	private ImageView MyCameraPreview = null;
-	private Bitmap bitmap = null;
 	private int[] pixels = null;
 	private byte[] FrameData = null;
 	private byte[] tmpData = null;
@@ -28,9 +28,95 @@ public class CameraPreview implements SurfaceHolder.Callback,
 	private int PreviewSizeHeight;
 	private boolean bProcessing = false;
 
+	private byte[] pixels3, pixels2;
+
 	private int mR = 20, mG = 220, mB = 20;
 
-	Handler mHandler = new Handler(Looper.getMainLooper());
+	private Handler mHandler;
+
+	private static Handler h;
+
+	private int newFrame = 10;
+	private Message processingM;
+	private MHandler mHandlerProcesing;
+
+
+	//
+	// Native JNI
+	//
+	public native String ImageProcessing(int width, int height,
+			byte[] NV21FrameData, int[] pixels, int bitsPerPixel, float mR,
+			float mG, float mB);
+	
+	static{
+		System.loadLibrary("ImageProcessing");
+	}
+	
+	HandlerThread ht = new HandlerThread("Processing");
+	
+	
+	private class MHandler extends HandlerThread {
+
+		private Handler myHandler;
+		private Handler camHandler;
+		private Message msgCam;
+		
+
+		public MHandler(String name, Handler h) {
+			super(name);
+			camHandler = h;
+		}
+
+		@Override
+		protected void onLooperPrepared() {
+			super.onLooperPrepared();
+
+			synchronized (this) {
+				this.myHandler = new Handler() {
+					@Override
+					public void handleMessage(Message msg) {
+						if (msg.what == newFrame) {
+							Bitmap bitmap = null;
+							bitmap = Bitmap.createBitmap(PreviewSizeWidth,
+									PreviewSizeHeight, Bitmap.Config.ARGB_8888);
+
+							Log.i("MyRealTimeImageProcessing",
+									"DoImageProcessing():");
+							
+							long startTime = System.currentTimeMillis();
+							String time = new String();
+
+							time = ImageProcessing(PreviewSizeWidth,
+									PreviewSizeHeight, (byte[])msg.obj, pixels,
+									ImageFormat.getBitsPerPixel(imageFormat),
+									mR, mG, mB);
+							long stopTime = System.currentTimeMillis();
+							long elapsedTime = stopTime - startTime;
+							System.out.println(elapsedTime);
+
+							bitmap.setPixels(pixels, 0, PreviewSizeWidth, 0, 0,
+									PreviewSizeWidth, PreviewSizeHeight);
+
+							msgCam = camHandler.obtainMessage();
+							msgCam.obj = bitmap;
+							camHandler.sendMessage(msgCam);
+						}
+					};
+				};
+			}
+		}
+
+		public synchronized Handler getHandler() {
+			while (myHandler == null)
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// ignore
+				}
+
+			return myHandler;
+		}
+	}
 
 	private class ColorChangeListener implements OnColorChangedListener {
 		@Override
@@ -48,10 +134,16 @@ public class CameraPreview implements SurfaceHolder.Callback,
 		PreviewSizeWidth = PreviewlayoutWidth;
 		PreviewSizeHeight = PreviewlayoutHeight;
 		MyCameraPreview = CameraPreview;
-		bitmap = Bitmap.createBitmap(PreviewSizeWidth, PreviewSizeHeight,
-				Bitmap.Config.ARGB_8888);
 		pixels = new int[PreviewSizeWidth * PreviewSizeHeight];
 		colorListener = new ColorChangeListener();
+		h = new Handler() {
+			public void dispatchMessage(Message msg) {
+				Bitmap bitmap = (Bitmap) msg.obj;
+				MyCameraPreview.setImageBitmap(bitmap);
+			}
+		};
+		mHandlerProcesing = new MHandler("ProcessingThread", h);
+		mHandlerProcesing.start();
 	}
 
 	public void filterColor(int red, int green, int blue) {
@@ -61,21 +153,21 @@ public class CameraPreview implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void onPreviewFrame(byte[] FrameData, Camera arg1) {
+	public void onPreviewFrame(byte[] frameData, Camera arg1) {
 		// At preview mode, the frame data will push to here.
-		if (imageFormat == ImageFormat.NV21) {
-			// We only accept the NV21(YUV420) format.
-			if (!bProcessing) {
-				tmpData = FrameData;
-				mHandler.post(DoImageProcessing);
-			}
-		}
-		mCamera.addCallbackBuffer(FrameData);
+
+		processingM = mHandler.obtainMessage(newFrame);
+		processingM.obj = frameData;
+		mHandler.sendMessage(processingM);
+
+		mCamera.addCallbackBuffer(pixels3);
+		mCamera.addCallbackBuffer(pixels2);
 		mCamera.setPreviewCallbackWithBuffer(this);
 	}
 
 	public void onPause() {
 		mCamera.stopPreview();
+		mHandlerProcesing.quit();
 	}
 
 	@Override
@@ -89,12 +181,17 @@ public class CameraPreview implements SurfaceHolder.Callback,
 		imageFormat = parameters.getPreviewFormat();
 
 		mCamera.setParameters(parameters);
-		FrameData = new byte[PreviewSizeHeight * PreviewSizeWidth
+		pixels2 = new byte[PreviewSizeHeight * PreviewSizeWidth
 				* ImageFormat.getBitsPerPixel(imageFormat)];
 
-		mCamera.addCallbackBuffer(FrameData);
+		pixels3 = new byte[PreviewSizeHeight * PreviewSizeWidth
+				* ImageFormat.getBitsPerPixel(imageFormat)];
+
+		mCamera.addCallbackBuffer(pixels3);
+		mCamera.addCallbackBuffer(pixels2);
 		mCamera.setPreviewCallbackWithBuffer(this);
 		mCamera.startPreview();
+		mHandler = mHandlerProcesing.getHandler();
 	}
 
 	@Override
@@ -119,42 +216,8 @@ public class CameraPreview implements SurfaceHolder.Callback,
 		mCamera = null;
 	}
 
-	//
-	// Native JNI
-	//
-	public native String ImageProcessing(int width, int height,
-			byte[] NV21FrameData, int[] pixels, int bitsPerPixel, float mR,
-			float mG, float mB);
-
-	static {
-		System.loadLibrary("ImageProcessing");
-	}
-
-	private Runnable DoImageProcessing = new Runnable() {
-
-		public void run() {
-			Log.i("MyRealTimeImageProcessing", "DoImageProcessing():");
-			bProcessing = true;
-			long startTime = System.currentTimeMillis();
-			String time = new String();
-
-			time = ImageProcessing(PreviewSizeWidth, PreviewSizeHeight,
-					tmpData, pixels, ImageFormat.getBitsPerPixel(imageFormat),
-					mR, mG, mB);
-			long stopTime = System.currentTimeMillis();
-			long elapsedTime = stopTime - startTime;
-			System.out.println(time);
-
-			bitmap.setPixels(pixels, 0, PreviewSizeWidth, 0, 0,
-					PreviewSizeWidth, PreviewSizeHeight);
-			MyCameraPreview.setImageBitmap(bitmap);
-
-			bProcessing = false;
-		}
-	};
 
 	public void takePicture() {
-		// TODO Auto-generated method stub
 
 	}
 }
